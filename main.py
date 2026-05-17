@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Query
+import os
+from fastapi import FastAPI, HTTPException, Query, Header, Depends
 from pydantic import BaseModel
 from typing import List
 from core import geocode_zip, get_endangered_species
@@ -8,6 +9,14 @@ app = FastAPI(
     description="Discover endangered and critically endangered species by Zip Code or coordinates for environmental planning and wildlife enthusiasts.",
     version="1.0.0"
 )
+
+# --- Security ---
+def verify_rapidapi(x_rapidapi_proxy_secret: str = Header(None)):
+    """Ensures requests are coming from RapidAPI by checking the proxy secret."""
+    expected_secret = os.getenv("RAPIDAPI_PROXY_SECRET")
+    # If the secret is set on Render, enforce it. If not (like on your local laptop), allow traffic.
+    if expected_secret and x_rapidapi_proxy_secret != expected_secret:
+        raise HTTPException(status_code=403, detail="Forbidden. Please access this API via RapidAPI.")
 
 # --- Pydantic Models for Output Validation and Documentation ---
 class SpeciesResponse(BaseModel):
@@ -23,7 +32,7 @@ class EcoRadiusResponse(BaseModel):
     species: List[SpeciesResponse]
 
 # --- API Endpoints ---
-@app.get("/api/v1/endangered/by-zip", response_model=EcoRadiusResponse)
+@app.get("/api/v1/endangered/by-zip", response_model=EcoRadiusResponse, dependencies=[Depends(verify_rapidapi)])
 def get_by_zip(
     zipcode: str = Query(..., description="The Zip or Postal code to search"),
     country: str = Query("US", description="Country code (e.g., US, CA, UK)"),
@@ -47,7 +56,7 @@ def get_by_zip(
         "species": result["species"]
     }
 
-@app.get("/api/v1/endangered/by-coords", response_model=EcoRadiusResponse)
+@app.get("/api/v1/endangered/by-coords", response_model=EcoRadiusResponse, dependencies=[Depends(verify_rapidapi)])
 def get_by_coords(
     lat: float = Query(..., description="Latitude of the center point"),
     lng: float = Query(..., description="Longitude of the center point"),
