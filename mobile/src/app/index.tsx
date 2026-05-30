@@ -45,7 +45,7 @@ export default function App() {
           <Text style={styles.badgeText}>{item.kingdom}</Text>
         </View>
       </View>
-      <Text style={styles.occurrences}>Occurrences: {item.occurrences_found}</Text>
+      <Text style={styles.occurrences}>Documented Sightings: {item.occurrences_found}</Text>
     </View>
   );
 
@@ -70,6 +70,13 @@ export default function App() {
           <Text style={styles.buttonText}>Search</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.legendContainer}>
+        <Text style={styles.legendText}>
+          Legend: EN = Endangered • CR = Critically Endangered
+        </Text>
+      </View>
+
 
       {error ? (
         <View style={styles.errorContainer}>
@@ -97,6 +104,10 @@ export default function App() {
           <Text style={styles.emptyText}>Enter a zip code to see wildlife around you.</Text>
         </View>
       )}
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Data provided by the Global Biodiversity Information Facility (GBIF)</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -133,7 +144,16 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     padding: 20,
-    marginTop: -20,
+    marginTop: 10,
+  },
+  legendContainer: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#7f8c8d',
   },
   input: {
     flex: 1,
@@ -246,5 +266,16 @@ const styles = StyleSheet.create({
     color: '#95a5a6',
     textAlign: 'center',
     lineHeight: 24,
+  },
+  footer: {
+    padding: 12,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#bdc3c7',
   },
 });
