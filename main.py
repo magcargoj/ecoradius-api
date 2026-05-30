@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException, Query, Header, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 from core import geocode_zip, get_endangered_species
@@ -8,6 +9,14 @@ app = FastAPI(
     title="Eco-Radius API",
     description="Discover endangered and critically endangered species by Zip Code or coordinates for environmental planning and wildlife enthusiasts.",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- Security ---
@@ -32,7 +41,7 @@ class EcoRadiusResponse(BaseModel):
     species: List[SpeciesResponse]
 
 # --- API Endpoints ---
-@app.get("/api/v1/endangered/by-zip", response_model=EcoRadiusResponse, dependencies=[Depends(verify_rapidapi)])
+@app.get("/api/v1/endangered/by-zip", response_model=EcoRadiusResponse)
 def get_by_zip(
     zipcode: str = Query(..., description="The Zip or Postal code to search"),
     country: str = Query("US", description="Country code (e.g., US, CA, UK)"),
@@ -56,7 +65,7 @@ def get_by_zip(
         "species": result["species"]
     }
 
-@app.get("/api/v1/endangered/by-coords", response_model=EcoRadiusResponse, dependencies=[Depends(verify_rapidapi)])
+@app.get("/api/v1/endangered/by-coords", response_model=EcoRadiusResponse)
 def get_by_coords(
     lat: float = Query(..., description="Latitude of the center point"),
     lng: float = Query(..., description="Longitude of the center point"),
