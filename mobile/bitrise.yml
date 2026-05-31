@@ -21,7 +21,7 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -e
-            npm test -- --passWithNoTests
+            npm test
     - script@1:
         title: Build Android APK
         inputs:
@@ -30,6 +30,7 @@ workflows:
             set -e
             export ANDROID_HOME="$HOME/Android/Sdk"
             source "$HOME/.sdkman/bin/sdkman-init.sh"
+            npx expo prebuild --platform android --no-install
             cd android
             chmod +x gradlew
             ./gradlew assembleRelease
