@@ -13,21 +13,21 @@ workflows:
         inputs:
         - content: |-
             #!/usr/bin/env bash
-            set -ex
+            set -e
             npm install
     - script@1:
         title: Run Tests
         inputs:
         - content: |-
             #!/usr/bin/env bash
-            set -ex
+            set -e
             npm test -- --passWithNoTests
     - script@1:
         title: Build Android APK
         inputs:
         - content: |-
             #!/usr/bin/env bash
-            set -ex
+            set -e
             export ANDROID_HOME="$HOME/Android/Sdk"
             source "$HOME/.sdkman/bin/sdkman-init.sh"
             cd android
