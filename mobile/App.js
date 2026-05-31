@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 
+/**
+ * Main Application Component for EcoRadius.
+ * 
+ * This component renders the primary interface for users to search 
+ * for endangered species by Zip Code. It handles state management for 
+ * the search query, loading indicators, and fetching data from the backend API.
+ * 
+ * @returns {React.ReactElement} The rendered React Native UI.
+ */
 export default function App() {
   const [zipcode, setZipcode] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
+  /**
+   * Fetches endangered species data from the local FastAPI backend
+   * based on the provided Zip Code. Updates the UI state with the result or an error.
+   * 
+   * @async
+   * @function fetchSpecies
+   */
   const fetchSpecies = async () => {
     if (!zipcode) return;
     setLoading(true);
@@ -31,6 +47,13 @@ export default function App() {
     }
   };
 
+  /**
+   * Renders a single species card in the FlatList.
+   * 
+   * @param {Object} props - The properties passed by the FlatList.
+   * @param {Object} props.item - The species data object.
+   * @returns {React.ReactElement} A formatted card component.
+   */
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.commonName}>{item.common_name || 'Unknown Common Name'}</Text>

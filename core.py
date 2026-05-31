@@ -1,7 +1,22 @@
+"""
+Core Module for EcoRadius
+
+This module handles external API integrations including geocoding via OpenStreetMap (Nominatim)
+and fetching endangered species occurrences from the Global Biodiversity Information Facility (GBIF).
+"""
 import requests
 
-def geocode_zip(zipcode: str, country: str = "US"):
-    """Convert a zipcode to lat/lng using OpenStreetMap Nominatim."""
+def geocode_zip(zipcode: str, country: str = "US") -> tuple[float | None, float | None]:
+    """
+    Convert a postal code to latitude and longitude coordinates using OpenStreetMap Nominatim.
+    
+    Args:
+        zipcode (str): The postal code to geocode.
+        country (str): The country code (default is "US").
+        
+    Returns:
+        tuple: A tuple containing (latitude, longitude) as floats. Returns (None, None) if not found.
+    """
     url = "https://nominatim.openstreetmap.org/search"
     params = {
         "postalcode": zipcode,
@@ -19,8 +34,16 @@ def geocode_zip(zipcode: str, country: str = "US"):
             return float(data[0]["lat"]), float(data[0]["lon"])
     return None, None
 
-def get_english_common_name(species_key: int):
-    """Fetch the English common name from the GBIF species endpoint."""
+def get_english_common_name(species_key: int) -> str:
+    """
+    Fetch the English common name for a given species from the GBIF species endpoint.
+    
+    Args:
+        species_key (int): The unique GBIF identifier for the species.
+        
+    Returns:
+        str: The English vernacular name. Defaults to "Unknown" if not found or on error.
+    """
     if not species_key:
         return "Unknown"
     url = f"https://api.gbif.org/v1/species/{species_key}/vernacularNames"
@@ -39,8 +62,20 @@ def get_english_common_name(species_key: int):
         pass
     return "Unknown"
 
-def get_endangered_species(lat: float, lng: float, radius_km: float = 10.0):
-    """Fetch endangered species from GBIF given coordinates and radius."""
+def get_endangered_species(lat: float, lng: float, radius_km: float = 10.0) -> dict:
+    """
+    Fetch and aggregate occurrences of endangered and critically endangered species 
+    from the GBIF database within a specified radius of given coordinates.
+    
+    Args:
+        lat (float): The latitude of the center point.
+        lng (float): The longitude of the center point.
+        radius_km (float): The search radius in kilometers (default 10.0).
+        
+    Returns:
+        dict: A dictionary containing the aggregated 'species' list and 'total_unique_species',
+              or an 'error' key if the API request fails.
+    """
     degree_offset = radius_km / 111.0
     min_lat = lat - degree_offset
     max_lat = lat + degree_offset

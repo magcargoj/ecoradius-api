@@ -1,7 +1,6 @@
-import os
-from fastapi import FastAPI, HTTPException, Query, Header, Depends
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 from core import geocode_zip, get_endangered_species
 
@@ -19,26 +18,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Security ---
-def verify_rapidapi(x_rapidapi_proxy_secret: str = Header(None)):
-    """Ensures requests are coming from RapidAPI by checking the proxy secret."""
-    expected_secret = os.getenv("RAPIDAPI_PROXY_SECRET")
-    # If the secret is set on Render, enforce it. If not (like on your local laptop), allow traffic.
-    if expected_secret and x_rapidapi_proxy_secret != expected_secret:
-        raise HTTPException(status_code=403, detail="Forbidden. Please access this API via RapidAPI.")
-
 # --- Pydantic Models for Output Validation and Documentation ---
 class SpeciesResponse(BaseModel):
-    scientific_name: str
-    common_name: str
-    kingdom: str
-    status: str
-    occurrences_found: int
+    """
+    Data model representing a single species found in the geographic query.
+    """
+    scientific_name: str = Field(..., description="The scientific name of the species")
+    common_name: str = Field(..., description="The common English name of the species, if available")
+    kingdom: str = Field(..., description="The biological kingdom (e.g., Animalia, Plantae)")
+    status: str = Field(..., description="The IUCN Red List status (e.g., Endangered, Critically Endangered)")
+    occurrences_found: int = Field(..., description="Number of observed occurrences within the search radius")
 
 class EcoRadiusResponse(BaseModel):
-    query_location: dict
-    total_unique_species: int
-    species: List[SpeciesResponse]
+    """
+    Data model representing the standard response payload for geographic queries.
+    """
+    query_location: dict = Field(..., description="Metadata about the requested location and search parameters")
+    total_unique_species: int = Field(..., description="The total count of unique endangered species found")
+    species: List[SpeciesResponse] = Field(..., description="A list of the endangered species found")
 
 # --- API Endpoints ---
 @app.get("/api/v1/endangered/by-zip", response_model=EcoRadiusResponse)
