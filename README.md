@@ -84,8 +84,10 @@ source venv/bin/activate
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Start the FastAPI server on port 8000
-python main.py
+# 3. Start the FastAPI server on port 8000 (in the background)
+python main.py &
+
+# Note: Press Enter if the logs overlay your prompt. To stop the server later, type `fg` then press CTRL+C.
 ```
 *The API will be available at `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`.*
 
