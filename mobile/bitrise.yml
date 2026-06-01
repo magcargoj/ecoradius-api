@@ -65,5 +65,21 @@ workflows:
               cp android/app/build/outputs/apk/debug/app-debug.apk "$BITRISE_DEPLOY_DIR/ecoradius.apk"
             fi
             echo "✅ APK built successfully and copied to artifacts/ecoradius.apk"
+    - script@1:
+        title: Install & Launch App on Connected Device
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
+            if adb devices | grep -v "List of devices" | grep -q "device"; then
+              echo "📱 Connected Android device detected."
+              echo "Installing APK to device..."
+              adb install -r ../artifacts/ecoradius.apk
+              echo "Launching App: com.anonymous.ecoradiusmobile..."
+              adb shell monkey -p com.anonymous.ecoradiusmobile -c android.intent.category.LAUNCHER 1
+              echo "🚀 App launched successfully on the device."
+            else
+              echo "⚠️ No connected Android device found. Skipping installation."
+            fi
     - deploy-to-bitrise-io@2: {}
 
