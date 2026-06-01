@@ -127,34 +127,31 @@ npm start
 
 This setup is ideal for local verification before pushing updates or running the CI/CD workflow.
 
----
+## ⚙️ Bitrise Automated Workflow & Local Playback
 
-## ⚙️ Bitrise Automated Workflow
-The `mobile/bitrise.yml` workflow automates the full interview demo flow end to end.
+The project features a fully automated end-to-end local playback pipeline configured in [bitrise.yml](file:///home/deck/.gemini/antigravity/scratch/ecoradius-api/mobile/bitrise.yml). 
 
-It performs these key stages:
-- Install backend dependencies and start the FastAPI API in the background
-- Install mobile dependencies
-- Lint and validate code with ESLint
-- Run application unit tests to validate behavior
-- Build a release Android APK using Gradle Runner and publish it to `artifacts/ecoradius.apk`
-- Deploy the results and APK artifact with Bitrise's `deploy-to-bitrise-io` step
+It is designed to set up everything needed for developer testing and live interview demos in a single command. The workflow performs the following stages:
 
-To test the app locally, you can use the web view while the backend is running:
+1. **Install & Start Backend API**: Installs backend Python packages, starts the FastAPI server in the background, bound to `0.0.0.0` (accepts external network traffic), and verifies it is healthy.
+2. **Install Mobile Dependencies & Run Tests**: Pulls packages and executes unit tests.
+3. **Start background Metro Server**: Launches the Expo/Metro bundler in the background on port `8085` (avoiding system-level conflicts on port `8081`).
+4. **Compile Multi-Architecture APK**: Generates a native Android debug APK compiled for both `arm64-v8a` (physical devices) and `x86_64` (emulators), exporting it to `artifacts/ecoradius.apk`.
+5. **Auto-Forward Ports (ADB Reverse)**: 
+   * Maps `8081` (phone) to `8085` (host) to stream JavaScript code directly over USB.
+   * Maps `8000` (phone) to `8000` (host) to route API queries directly to the Steam Deck backend without local Wi-Fi router dependencies.
+6. **Deploy & Launch**: Streams the installation of the APK directly onto a physical Android device connected via USB (with USB debugging enabled) and opens the app automatically.
 
-```bash
-cd mobile
-npm start
-# Then press 'w' for web
-```
+### Running the Entire Automated Pipeline:
 
-Run the full automated APK build locally with:
+Simply connect your Android phone via USB (ensure USB debugging is enabled in developer settings) and run:
+
 ```bash
 cd mobile
 bitrise run primary
 ```
 
-This workflow is designed to showcase not just a build, but a full integrated pipeline from backend startup to emulator deployment, validation, and APK packaging.
+Once completed, the app will instantly boot on your phone and talk directly to the backend API running on your host machine!
 
 ---
 
