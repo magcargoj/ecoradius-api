@@ -38,6 +38,27 @@ workflows:
             set -e
             npm test
     - script@1:
+        title: Start Metro Dev Server
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
+            echo "🧹 Cleaning up any existing Metro processes on port 8085..."
+            kill -9 $(lsof -t -i:8085) 2>/dev/null || true
+            
+            echo "🚀 Starting Metro Dev Server in the background on port 8085..."
+            nohup npx expo start --port 8085 < /dev/null > metro.log 2>&1 &
+            
+            echo "⏳ Waiting for Metro Dev Server to be ready..."
+            for i in {1..30}; do
+              if curl -s -I http://127.0.0.1:8085/ >/dev/null 2>&1 || nc -z 127.0.0.1 8085 2>/dev/null; then
+                echo "✅ Metro Dev Server is online and listening on port 8085."
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "⚠️ Metro Dev Server took too long to start, but continuing..."
+    - script@1:
         title: Prebuild Android Project
         inputs:
         - content: |-
