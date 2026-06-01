@@ -102,8 +102,8 @@ cd mobile
 # 2. Install NPM dependencies
 npm install
 
-# 3. Start the Expo development server
-npm start
+# 3. Start the Expo development server on a consistent port
+npx expo start --port 8085
 ```
 *Use the Expo Go app on your physical device, or press `a` to run on an Android emulator, or `w` for the web interface.*
 

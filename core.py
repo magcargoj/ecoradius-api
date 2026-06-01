@@ -122,7 +122,7 @@ def get_endangered_species(lat: float, lng: float, radius_km: float = 10.0) -> d
     # Attempt to resolve "Unknown" or foreign common names
     for s in species_map.values():
         current_name = s["common_name"]
-        # If it's unknown or contains non-ascii characters (like the Russian name you saw)
+        # If it's unknown or contains non-ascii characters (like Russian acryllic)
         if current_name == "Unknown" or not current_name.isascii():
             better_name = get_english_common_name(s.get("speciesKey"))
             if better_name != "Unknown":
