@@ -73,6 +73,9 @@ workflows:
             set -e
             if adb devices | grep -v "List of devices" | grep -q "device"; then
               echo "📱 Connected Android device detected."
+              echo "Setting up port forwarding (adb reverse)..."
+              adb reverse tcp:8081 tcp:8081
+              adb reverse tcp:8000 tcp:8000
               echo "Installing APK to device..."
               adb install -r ../artifacts/ecoradius.apk
               echo "Launching App: com.anonymous.ecoradiusmobile..."
