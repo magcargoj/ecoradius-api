@@ -38,14 +38,6 @@ workflows:
             set -e
             npm test
     - script@1:
-        title: Start Android Emulator
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -e
-            chmod +x scripts/setup_emulator.sh
-            ./scripts/setup_emulator.sh
-    - script@1:
         title: Prebuild Android Project
         inputs:
         - content: |-
@@ -69,6 +61,9 @@ workflows:
             set -e
             mkdir -p ../artifacts
             cp android/app/build/outputs/apk/debug/app-debug.apk ../artifacts/ecoradius.apk
+            if [ -n "$BITRISE_DEPLOY_DIR" ]; then
+              cp android/app/build/outputs/apk/debug/app-debug.apk "$BITRISE_DEPLOY_DIR/ecoradius.apk"
+            fi
             echo "✅ APK built successfully and copied to artifacts/ecoradius.apk"
     - deploy-to-bitrise-io@2: {}
 
