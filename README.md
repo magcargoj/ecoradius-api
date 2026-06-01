@@ -107,29 +107,11 @@ npx expo start --port 8085
 ```
 *Use the Expo Go app on your physical device, or press `a` to run on an Android emulator, or `w` for the web interface.*
 
-### 3. Running End-to-End Locally
-After starting the backend API, you can run the mobile app and verify it connects successfully.
-
-1. Start the backend from the repo root:
-```bash
-python main.py &
-```
-2. Confirm the API is live at:
-   - `http://localhost:8000`
-   - `http://localhost:8000/docs`
-3. In the `mobile` directory, install dependencies and start Expo:
-```bash
-cd mobile
-npm install
-npm start
-```
-4. Open Expo on a device or emulator and confirm the app loads data from the backend.
-
 This setup is ideal for local verification before pushing updates or running the CI/CD workflow.
 
 ## ⚙️ Bitrise Automated Workflow & Local Playback
 
-The project features a fully automated end-to-end local playback pipeline configured in [bitrise.yml](file:///home/deck/.gemini/antigravity/scratch/ecoradius-api/mobile/bitrise.yml). 
+The project features a fully automated end-to-end local playback pipeline configured in [bitrise.yml](mobile/bitrise.yml). 
 
 It is designed to set up everything needed for developer testing and live interview demos in a single command. The workflow performs the following stages:
 
