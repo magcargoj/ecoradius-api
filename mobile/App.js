@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
+import Constants from 'expo-constants';
 
 /**
  * Main Application Component for EcoRadius.
@@ -29,10 +30,10 @@ export default function App() {
     setError('');
     try {
       // In a real environment, this would point to the deployed API.
-      // We assume it's running locally on port 8000 for this demo.
-      // Note: for Android emulator, 10.0.2.2 is the localhost alias.
-      // For iOS simulator, localhost works.
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/endangered/by-zip?zipcode=${zipcode}`);
+      // Dynamically resolve the host IP address (Steam Deck) from Expo Constants
+      const hostUri = Constants.expoConfig?.hostUri || '';
+      const ip = hostUri ? hostUri.split(':')[0] : '127.0.0.1';
+      const response = await fetch(`http://${ip}:8000/api/v1/endangered/by-zip?zipcode=${zipcode}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch data. Ensure API is running locally.');
