@@ -38,6 +38,14 @@ workflows:
             set -e
             npm test
     - script@1:
+        title: Start Android Emulator
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
+            chmod +x scripts/setup_emulator.sh
+            ./scripts/setup_emulator.sh
+    - script@1:
         title: Prebuild Android Project
         inputs:
         - content: |-

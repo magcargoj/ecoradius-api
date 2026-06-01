@@ -12,13 +12,20 @@ echo "📜 Accepting Android SDK licenses..."
 yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
 echo "🔍 Ensuring required Android packages are installed..."
-sdkmanager --install "platform-tools" "emulator" "system-images;android-33;google_apis;x86" --sdk_root="$ANDROID_HOME"
+sdkmanager --install "platform-tools" "emulator" "system-images;android-33;google_apis;x86_64" --sdk_root="$ANDROID_HOME"
 
 echo "🛠️ Creating Android Virtual Device (AVD) named 'pixel_api_33'..."
-echo "no" | avdmanager create avd -n pixel_api_33 -k "system-images;android-33;google_apis;x86" --device "pixel" --force --sdk_root="$ANDROID_HOME"
+echo "no" | avdmanager create avd -n pixel_api_33 -k "system-images;android-33;google_apis;x86_64" --device "pixel" --force
 
-echo "🚀 Starting the emulator in the background..."
-emulator -avd pixel_api_33 -no-window -no-audio -no-boot-anim -no-snapshot-load -gpu swiftshader_indirect -memory 1536 &
+
+# Check if running in a CI environment or without display
+if [ "$CI" = "true" ] || [ -z "$DISPLAY" ]; then
+  echo "🚀 Starting the emulator in HEADLESS mode (CI/No-display detected)..."
+  emulator -avd pixel_api_33 -no-window -no-audio -no-boot-anim -no-snapshot-load -gpu swiftshader_indirect -memory 1536 &
+else
+  echo "🚀 Starting the emulator in GUI mode with hardware acceleration..."
+  emulator -avd pixel_api_33 -no-audio -no-boot-anim -gpu host -memory 1536 &
+fi
 
 EMULATOR_PID=$!
 
