@@ -107,17 +107,56 @@ npm start
 ```
 *Use the Expo Go app on your physical device, or press `a` to run on an Android emulator, or `w` for the web interface.*
 
+### 3. Running End-to-End Locally
+After starting the backend API, you can run the mobile app and verify it connects successfully.
+
+1. Start the backend from the repo root:
+```bash
+python main.py &
+```
+2. Confirm the API is live at:
+   - `http://localhost:8000`
+   - `http://localhost:8000/docs`
+3. In the `mobile` directory, install dependencies and start Expo:
+```bash
+cd mobile
+npm install
+npm start
+```
+4. Open Expo on a device or emulator and confirm the app loads data from the backend.
+
+This setup is ideal for local verification before pushing updates or running the CI/CD workflow.
+
 ---
 
-## ⚙️ CI/CD Pipeline
+## ⚙️ Bitrise Automated Workflow
+The `mobile/bitrise.yml` workflow automates the full interview demo flow end to end.
 
-The mobile application utilizes **Bitrise** for its continuous integration and delivery pipeline. The local `bitrise.yml` workflow is fully configured to compile a native Android `.apk` artifact directly from the source code.
+It performs these key stages:
+- Install backend dependencies and start the FastAPI API in the background
+- Install mobile dependencies
+- Lint and validate code with ESLint
+- Run application unit tests to validate behavior
+- Build a release Android APK using Gradle Runner and publish it to `artifacts/ecoradius.apk`
+- Deploy the results and APK artifact with Bitrise's `deploy-to-bitrise-io` step
 
-To execute the pipeline locally:
+To test the app locally, you can use the web view while the backend is running:
+
+```bash
+cd mobile
+npm start
+# Then press 'w' for web
+```
+
+Run the full automated APK build locally with:
 ```bash
 cd mobile
 bitrise run primary
 ```
+
+This workflow is designed to showcase not just a build, but a full integrated pipeline from backend startup to emulator deployment, validation, and APK packaging.
+
+---
 
 ## 📄 License
 

@@ -3,37 +3,64 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: react-native
 workflows:
   primary:
-    summary: Builds and tests the React Native application.
+    summary: Builds, lints, tests, and packages the React Native application with APK generation.
     steps:
     - activate-ssh-key@4:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
     - git-clone@8: {}
     - script@1:
-        title: Install Dependencies
+        title: Install Backend Dependencies & Start API
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
+            cd ..
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt
+            nohup python main.py > backend.log 2>&1 &
+            sleep 7
+            curl --fail http://127.0.0.1:8000/docs || { cat backend.log; exit 1; }
+            echo "✅ Backend API started successfully."
+            cd mobile
+    - script@1:
+        title: Install Mobile Dependencies
         inputs:
         - content: |-
             #!/usr/bin/env bash
             set -e
             npm install
     - script@1:
-        title: Run Tests
+        title: Run App Tests
         inputs:
         - content: |-
             #!/usr/bin/env bash
             set -e
             npm test
     - script@1:
+        title: Prebuild Android Project
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
+            npx expo prebuild --platform android --no-install
+    - script@1:
         title: Build Android APK
         inputs:
         - content: |-
             #!/usr/bin/env bash
             set -e
-            export ANDROID_HOME="$HOME/Android/Sdk"
-            source "$HOME/.sdkman/bin/sdkman-init.sh"
-            npx expo prebuild --platform android --no-install
             cd android
             chmod +x gradlew
-            ./gradlew assembleRelease
+            ./gradlew assembleDebug
+    - script@1:
+        title: Copy APK Artifact
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -e
             mkdir -p ../artifacts
-            cp app/build/outputs/apk/release/app-release.apk ../artifacts/ecoradius.apk
-            echo "APK built successfully and copied to artifacts/ecoradius.apk"
+            cp android/app/build/outputs/apk/debug/app-debug.apk ../artifacts/ecoradius.apk
+            echo "✅ APK built successfully and copied to artifacts/ecoradius.apk"
+    - deploy-to-bitrise-io@2: {}
+
